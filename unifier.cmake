@@ -4,7 +4,7 @@
 # 
 # This is meant to be used by any project really.
 # A library must adhere to the unifier standards in order to work correctly with
-# libraries that use unifier and depend on it.
+# libraries that depend on it (and use unifier).
 # * include files for the public must be in <libroot>/include/<libname>
 # * the library cmake must include(unifier/unifier.cmake) in the beginning
 # * must have a use.cmake file on <libroot> that:
@@ -12,7 +12,7 @@
 # * * uselib(<other_unifier_compatible_libname_dependency>)
 # * * uselib_noheaders(<link_only_unifier_compatible_libname_dependency>)
 # 
-# Then in your cmakelists you can uselib(mylib) and include ${headers} and 
+# Then in your cmakelists you can uselib(depending_on_lib) and include ${headers} and 
 # link with ${libs} and all should just work (meaning all libs to link should be pulled correctly
 # as well as all public required headers)
 # 
