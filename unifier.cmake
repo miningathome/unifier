@@ -1,19 +1,20 @@
 ##############################################################################
 # 
-# The Unifier - revision: 1
+# The Unifier - revision: 2
 # 
 # This is meant to be used by any project really.
-# All you need to do is have a use.cmake in the root
-# of your library that calls definelib(mylib) and 
-# declares all it's other Unifier compatible libraries
-# with uselib(myotherlib)
-# Then in your executable you can uselib(mylib) and include ${headers} and 
-# link with ${libs} and all should just work (meaning myotherlib should be pulled correctly)
+# A library must adhere to the unifier standards in order to work correctly with
+# libraries that use unifier and depend on it.
+# * include files for the public must be in <libroot>/include/<libname>
+# * the library cmake must include(unifier/unifier.cmake) in the beginning
+# * must have a use.cmake file on <libroot> that:
+# * * definelib(<libname>)
+# * * uselib(<other_unifier_compatible_libname_dependency>)
+# * * uselib_noheaders(<link_only_unifier_compatible_libname_dependency>)
 # 
-# The only issue is that all your libraries should be unifier compatible to
-# be used this way
-# 
-# oh and don't forget to include this file in the beginning of your project file
+# Then in your cmakelists you can uselib(mylib) and include ${headers} and 
+# link with ${libs} and all should just work (meaning all libs to link should be pulled correctly
+# as well as all public required headers)
 # 
 ##############################################################################
 
@@ -28,19 +29,21 @@ macro(definelib libname)
 		message(FATAL "vendor variable must be set to the vendor location (the one with all the libraries)")
 	endif()
 
-	if(use_${libname}_included)
-		return()
-	endif()
-
-	set(use_${libname}_included true)
-	message(STATUS "definelib: ${libname}")
+#	message(STATUS "definelib: ${CMAKE_CURRENT_SOURCE_DIR} ${libname}")
 
 	if (NOT TARGET ${libname})
-		add_subdirectory(${vendor}/${libname} ${CMAKE_BINARY_DIR}/${libname})
+		add_subdirectory(${CMAKE_CURRENT_LIST_DIR} ${CMAKE_BINARY_DIR}/${libname})
 	endif()
 
-	list(APPEND headers "${vendor}/${libname}/include")
-	list(APPEND libs "${libname}")
+	if(NOT ${libname}_headers_included)
+		list(APPEND headers "${CMAKE_CURRENT_LIST_DIR}/include")
+		set(${libname}_headers_included true)
+	endif()
+	
+	if(NOT ${libname}_libs_included)
+		list(APPEND libs "${libname}")
+		set(${libname}_libs_included true)
+	endif()
 endmacro()
 
 ## uselib
@@ -49,7 +52,26 @@ macro(uselib libname)
 		message(FATAL "vendor variable must be set to the vendor location (the one with all the libraries)")
 	endif()
 
+#	message(STATUS "uselib: ${libname} (${CMAKE_CURRENT_SOURCE_DIR})")
+
 	include("${vendor}/${libname}/use.cmake")
+endmacro()
+
+## no headers
+macro(uselib_noheaders libname)
+	if(NOT DEFINED vendor)
+		message(FATAL "vendor variable must be set to the vendor location (the one with all the libraries)")
+	endif()
+
+#	message(STATUS "uselib_noheaders: ${libname} (${CMAKE_CURRENT_SOURCE_DIR})")
+
+	if(${libname}_headers_included)
+		include("${vendor}/${libname}/use.cmake")
+	else()
+		set(${libname}_headers_included true)
+		include("${vendor}/${libname}/use.cmake")
+		unset(${libname}_headers_included)
+	endif()
 endmacro()
 
 # fix output directories - get rid of Release/Debug
