@@ -1,7 +1,7 @@
 ##############################################################################
-#
+# 
 # The Unifier - revision: 1
-#
+# 
 # This is meant to be used by any project really.
 # All you need to do is have a use.cmake in the root
 # of your library that calls definelib(mylib) and 
@@ -9,12 +9,12 @@
 # with uselib(myotherlib)
 # Then in your executable you can uselib(mylib) and include ${headers} and 
 # link with ${libs} and all should just work (meaning myotherlib should be pulled correctly)
-#
+# 
 # The only issue is that all your libraries should be unifier compatible to
 # be used this way
-#
+# 
 # oh and don't forget to include this file in the beginning of your project file
-#
+# 
 ##############################################################################
 
 if(unifier_included)
