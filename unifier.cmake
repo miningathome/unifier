@@ -75,6 +75,8 @@ macro(uselib_noheaders libname)
 endmacro()
 
 # fix output directories - get rid of Release/Debug
+##################################################################################################
+
 if(MSVC)
 	foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
 		string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
@@ -82,6 +84,17 @@ if(MSVC)
 		set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/lib)
 		set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/lib)
 	endforeach(OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES)
+
+	foreach(flag_var
+		CMAKE_CXX_FLAGS
+		CMAKE_CXX_FLAGS_DEBUG
+		CMAKE_CXX_FLAGS_RELEASE
+		CMAKE_CXX_FLAGS_MINSIZEREL
+		CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+			if(${flag_var} MATCHES "/MD")
+				string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+			endif(${flag_var} MATCHES "/MD")
+	endforeach(flag_var)
 endif()
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
