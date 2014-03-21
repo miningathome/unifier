@@ -74,6 +74,11 @@ macro(uselib_noheaders libname)
 	endif()
 endmacro()
 
+# compiler flags we use in most projects
+if(CMAKE_COMPILER_IS_GNUCXX)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++11")
+endif()
+
 # fix output directories - get rid of Release/Debug
 ##################################################################################################
 
