@@ -21,21 +21,25 @@
 if(unifier_included)
 	return()
 endif()
+
 set(unifier_included true)
+if(NOT DEFINED vendor)
+	message(FATAL "vendor variable must be set to the vendor location (the one with all the libraries)")
+endif()
 
 ## definelib
+####################################################
 macro(definelib libname)
-	if(NOT DEFINED vendor)
-		message(FATAL "vendor variable must be set to the vendor location (the one with all the libraries)")
-	endif()
-
 #	message(STATUS "definelib: ${CMAKE_CURRENT_SOURCE_DIR} ${libname}")
 
-	if (NOT TARGET ${libname})
-		add_subdirectory(${CMAKE_CURRENT_LIST_DIR} ${CMAKE_BINARY_DIR}/${libname})
+	if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt")
+		if (NOT TARGET ${libname})
+			add_subdirectory(${CMAKE_CURRENT_LIST_DIR} ${CMAKE_BINARY_DIR}/${libname})
+		endif()
 	endif()
 
 	if(NOT ${libname}_headers_included)
+		list(APPEND headers "${CMAKE_BINARY_DIR}/${libname}")
 		list(APPEND headers "${CMAKE_CURRENT_LIST_DIR}/include")
 		set(${libname}_headers_included true)
 	endif()
@@ -45,24 +49,29 @@ macro(definelib libname)
 		set(${libname}_libs_included true)
 	endif()
 endmacro()
+####################################################
+
+## definelib_headeronly
+####################################################
+macro(definelib_headeronly libname)
+	set(${libname}_libs_included true)
+	definelib(libname)
+	set(${libname}_libs_included false)
+endmacro()
+####################################################
 
 ## uselib
+####################################################
 macro(uselib libname)
-	if(NOT DEFINED vendor)
-		message(FATAL "vendor variable must be set to the vendor location (the one with all the libraries)")
-	endif()
-
 #	message(STATUS "uselib: ${libname} (${CMAKE_CURRENT_SOURCE_DIR})")
 
 	include("${vendor}/${libname}/use.cmake")
 endmacro()
+####################################################
 
 ## no headers
+####################################################
 macro(uselib_noheaders libname)
-	if(NOT DEFINED vendor)
-		message(FATAL "vendor variable must be set to the vendor location (the one with all the libraries)")
-	endif()
-
 #	message(STATUS "uselib_noheaders: ${libname} (${CMAKE_CURRENT_SOURCE_DIR})")
 
 	if(${libname}_headers_included)
@@ -73,6 +82,7 @@ macro(uselib_noheaders libname)
 		unset(${libname}_headers_included)
 	endif()
 endmacro()
+####################################################
 
 # compiler flags we use in most projects
 if(CMAKE_COMPILER_IS_GNUCXX)
