@@ -55,7 +55,7 @@ endmacro()
 ####################################################
 macro(definelib_headeronly libname)
 	set(${libname}_libs_included true)
-	definelib(libname)
+	definelib(${libname})
 	set(${libname}_libs_included false)
 endmacro()
 ####################################################
