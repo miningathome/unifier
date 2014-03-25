@@ -23,6 +23,7 @@ if(unifier_included)
 endif()
 
 set(unifier_included true)
+
 if(NOT DEFINED vendor)
 	message(FATAL_ERROR "vendor variable must be set to the vendor location (the one with all the libraries)")
 endif()
